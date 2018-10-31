@@ -1,0 +1,12 @@
+Instrukcja kompilowania programów wykorzystywanych w ćwiczeniu 2
+Autor: Paweł Kędzior
+
+Aby skompilować programy, należy wywołać komendę:
+
+	make all
+
+Następnie należy uruchomić plik glowny.out
+	
+Jeśli chce się usunąć pliki wynikowe, należy wywołać komendę:
+
+	make clean

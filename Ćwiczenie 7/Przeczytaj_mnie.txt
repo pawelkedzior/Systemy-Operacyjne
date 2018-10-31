@@ -1,0 +1,130 @@
+Instrukcja kompilowania programów wykorzystywanych w ćwiczeniu 7
+Autor: Paweł Kędzior
+
+Aby skompilować i uruchomić programy, należy wywołać komendę:
+
+	make uruchomstat
+	
+lub
+
+	make uruchomdyn
+
+uruchomstat - wykorzystanie biblioteki statycznej
+uruchomdyn - wykorzystanie biblioteki dynamicznej
+
+Po jego uruchomieniu wpisujemy liczbę producentów i konsumentów, dzięki którym zaobserwujemy działanie rozwiązania problemu producenta-konsumenta.
+
+Potem należy poczekać, aż program zakończy działanie.
+
+Program działa według następującego algorytmu:
+
+	Program główny:
+		- stwórz klucze dla 5-ciu semaforów i segmentu pamięci dzielonej
+		- stwórz fragment pamięci dzielonej
+		- utwórz dowiązanie do stworzonego fragmentu
+		- umieść bufor cykliczny w dowiązanym fragmencie
+		- stwórz 3 semafory binarne: kontroli dostępu do odpowiedniego fragmentu pamięci dzielonej
+											  dostępu do pliku docelowego
+											  dostępu do pliku źródłowego
+		- stwórz 2 semafory, z wartością równą liczbie fragmentów bufora cyklicznego, służące dostępowi do fragmentów pamięci dzielonej; semafor pozwalający na 
+				dostęp do pamięci dzielonej konsumentom powinien być wyzerowany
+		- podaj liczbę procesów konsumentów i producentów				
+		- stwórz proces potomny
+			+instrukcje dla procesu potomnego:
+					- stwórz proces potomny
+						+ instrukcje dla procesu potomnego:
+								- powtarzaj tyle razy, ile ma być producentów:
+									+ uruchom program producenta					
+					- czekaj 2 sekundy
+					- powtarzaj tyle razy, ile ma być konsumentów:
+						+ uruchom program konsumenta 
+		- oczekuj na zakończenie działania procesów potomnych
+		- usuń semafory oraz dowiązanie i segment pamięci dzielonej
+
+	Program producenta:
+	{
+		wsk_pliku=otwórz_plik("ścieżka","r+");
+		dopóki(!koniec_odczytu)
+		{
+			opusc_sem(semafor_pam_prod);
+			opusc_sem(semafor_plik);
+			if(!koniec_odczytu)
+			{
+				opusc_sem(semafor_kontrol);
+				ustaw_wskaźnik_położenia_w_pliku(wsk_pliku,przeczytaj_w_buforze_wskaźnik_położenia(),liczymy_od_poczatku);
+				wczytaj_dane_z_pliku(wsk_pliku);
+				przepisz_dane_do_bufora_cyklicznego(wskaźnik_końca_bufora);
+				przesuń_wskaźnik_końca_bufora_na_następny_fragment();
+				podnies_sem(semafor_kontrol);
+				if(koniec_pliku(wsk_pliku)==prawda)
+				{
+					koniec_odczytu=prawda;
+				}
+				przekaż_do_bufora_pozycję_wskaźnika_położenia_w_pliku();
+			}
+			podnies_sem(semafor_plik);
+			podnies_sem(semafor_pam_kons);
+		}
+		zamknij_plik(wsk_pliku);
+	}
+	
+	Program konsumenta:
+	{
+		dopóki(prawda)
+		{
+			opusc_sem(semafor_pam_kons);
+			opusc_sem(semafor_kontrol);
+			jeśli(zakończono_odczyt_z_pliku_źródłowego&&przeczytano_wszystkie_fragmenty_pamięci)
+			{
+				podnies_sem(semafor_kontrol);
+				podnies_sem(semafor_pam_prod);
+				podnies_sem(semafor_pam_kons);
+				złam;
+			}
+			opusc_sem(semafor_plik);
+			wsk_pliku=otwórz_plik("ścieżka","a+");
+			przesuń_wskaźnik_bufora_na_następny_fragment();
+			podnies_sem(semafor_kontrol);
+			wczytaj_dane_z_segmentu_który_wskazywał_wskaźnik_bufora_przed_przemieszczeniem();
+			podnies_sem(semafor_pam_prod);
+			wpisz_do_pliku(wczytane_dane, wsk_pliku);
+			zamknij_plik(wsk_pliku);
+			podnies_sem(semafor_plik);
+			śpij(1);
+		}
+	}
+
+
+Wszystkie działania na semaforach są realizowane przy pomocy funkcji bibliotecznych znajdujących się w stworzonej w tym celu bibliotece sem.h. Zawiera ona 
+następujące funkcje:
+
+	int stw_sem(key_t klucz_sem, int typ); /*Funkcja ta tworzy i inicjuje semafor i zwraca liczbę dostępu do stworzonego semafora. Argument pierwszy to klucz, na
+														  podstawie którego semafor jest tworzony, zaś argument drugi oznacza maksymalną liczbę procesów, które mogą znaleźć się
+														  w sekcji krytycznej.*/
+	void usun_sem(int sem); /*Funkcja ta usuwa stworzony uprzednio semafor. Jako argument przyjmuje identyfikator semafora.*/
+	int kontrola_sem(int sem, int zadanie); /*Funkcja ta realizuje różne zadania w zależności od podanego argumentu zadanie - można podać stałe zdefiniowane dla
+															semaforów systemowych oraz użyć opcji: CZEKA_PRZED - podaje liczbę procesów czekających na podniesienie semafora; 
+															CZEKA_POD - podaje liczbę procesów czekających na przejście pod semaforem; ILE_MOZLIWE - podaję maksymalną liczbę
+															procesów, które mogą być na raz w sekcji krytycznej. Pierwszym argumentem jest identyfikator do semaforu. Funkcja
+															zwraca 0 lub żądaną wartość.*/
+	void przejdz_pod_sem(int sem); /*Funkcja ta pozwala na przejście pod semaforem.*/
+	void opusc_sem(int sem); /*Funkcja ta służy do opuszczenia semaforu.*/
+	void podnies_sem(int sem); /*Funkcja ta służy do podnoszenia semaforu.*/
+
+	Wszystkie operacje są blokujące.
+	
+Działania na pamiędzi dzielonej natomiast realizowane są przy pomocy funkcji bibliotecznych znajdujących się w bibliotece pam.h, która również została stworzona
+przez autora. Składa się ona z funkcji:
+
+	int pamdziel_stw(key_t klucz, int rozmiar); /*Funkcja tworząca fragment pamięci dzielonej i zwracająca jej identyfikator.*/
+	void *pamdziel_dow(int segment, int tryb); /*Funkcja tworząca dowiązanie do stworzonego fragmentu pamięci dzielonej.*/
+	int pamdziel_usundow(void *adrdow); /*Funkcja usuwająca dowiązanie do fragmentu pamięci dzielonej.*/
+	int pamdziel_usunseg(int segment); /*Funkcja usuwająca segment pamięci dzielonej.*/
+
+Jeśli chce się usunąć produkty kompilacji i wywołania programu, należy wywołać komendę:
+
+	make clean
+	
+Istnieje możliwość spakowania plików do archiwum *.tar.gz przy pomocy komendy:
+
+	make tar

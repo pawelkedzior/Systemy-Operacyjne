@@ -1,0 +1,42 @@
+Instrukcja kompilowania programów wykorzystywanych w ćwiczeniu 6
+Autor: Paweł Kędzior
+
+Aby skompilować programy, należy wywołać komendę:
+
+	make
+
+Następnie uruchamiamy program wywołując komendę ./wynik.out. 
+
+Po jego uruchomieniu wpisujemy liczbę procesów, dzięki którym zaobserwujemy działanie rozwiązania problemu wzajemnego wykluczania się.
+
+Potem należy poczekać, aż program zakończy działanie.
+
+Program w trakcie wykonywania tworzy semafor, następnie pyta o liczbę procesów do stworzenia i dzieli się na proces macierzysty i procesy potomne (w liczbie podanej
+przez użytkownika), po czym uruchamia podprogram dostep.out w procesie potomnym. Program macierzysty czeka zaś na zakończenie działania wszystkich procesów.
+
+Podprogram dostep.out wymaga podania liczby charakterystycznej dla stworzonego w programie macierzystym semafora i numeru procesu potomnego, który uruchomił
+ten podprogram. Po uruchomieniu program ten wypisuje na ekran tekst informujący o tym, że został on uruchomiony i podaje numer procesu, w którym został uruchomiony.
+Następnie informuje o znajdowaniu się przed sekcją krytyczną i usiłuje do niej wejść, sprawdzając, czy może opuścić semafor. Jeśli nie może, to czeka na swoją kolej.
+Po wejściu do sekcji krytycznej program czeka do 4 sekund i następnie wychodzi z sekcji krytycznej i zwalnia semafor.
+
+Wszystkie działania na semaforach są realizowane przy pomocy funkcji bibliotecznych znajdujących się w stworzonej w tym celu bibliotece sem.h. Zawiera ona 
+następujące funkcje:
+
+	int stw_sem(key_t klucz_sem, int typ); /*Funkcja ta tworzy i inicjuje semafor i zwraca liczbę dostępu do stworzonego semafora. Argument pierwszy to klucz, na
+														  podstawie którego semafor jest tworzony, zaś argument drugi oznacza maksymalną liczbę procesów, które mogą znaleźć się
+														  w sekcji krytycznej.*/
+	void usun_sem(int sem); /*Funkcja ta usuwa stworzony uprzednio semafor. Jako argument przyjmuje identyfikator semafora.*/
+	int kontrola_sem(int sem, int zadanie); /*Funkcja ta realizuje różne zadania w zależności od podanego argumentu zadanie - można podać stałe zdefiniowane dla
+															semaforów systemowych oraz użyć opcji: CZEKA_PRZED - podaje liczbę procesów czekających na podniesienie semafora; 
+															CZEKA_POD - podaje liczbę procesów czekających na przejście pod semaforem; ILE_MOZLIWE - podaję maksymalną liczbę
+															procesów, które mogą być na raz w sekcji krytycznej. Pierwszym argumentem jest identyfikator do semaforu. Funkcja
+															zwraca 0 lub żądaną wartość.*/
+	void przejdz_pod_sem(int sem); /*Funkcja ta pozwala na przejście pod semaforem.*/
+	void opusc_sem(int sem); /*Funkcja ta służy do opuszczenia semaforu.*/
+	void podnies_sem(int sem); /*Funkcja ta służy do podnoszenia semaforu.*/
+
+	Wszystkie operacje są blokujące.
+
+Jeśli chce się usunąć pliki wynikowe oraz pliki binarne (.o), należy wywołać komendę:
+
+	make clean

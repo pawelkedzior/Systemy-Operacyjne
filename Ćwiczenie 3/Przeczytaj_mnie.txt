@@ -1,0 +1,31 @@
+Instrukcja kompilowania programów wykorzystywanych w ćwiczeniu 2
+Autor: Paweł Kędzior
+
+Aby skompilować programy, należy wywołać komendę:
+
+	make all
+
+Następnie należy uruchomić program do obsługi sygnałów (część I zadania) należy w terminalu wpisać: ./obsluga.out i dodać tryb działania programu. Po wpisaniu ./obsluga.out pomoc wyświetli się następujący tekst:
+
+	"Aby wywołać odpowiedni sposób oddziaływania na sygnał wpisz:
+		"zwyczajne" - domyślna reakcja na sygnał
+		"olane" - ignorowanie sygnału
+		"moje" - wybrany sposób oddziaływania na sygnał - dostępne są następujące sposoby reakcji:
+			"UJ" - Wypisuje na ekran tekst: "KOCHAM UJ!"
+			"Licz" - Wykonuje odliczanie od 10 do 0 co sekundę.
+			"Zniewaz" - Obraża obsługującego program.
+			"Podlizsie" - Wypisuje tekst ociekający słodyczą.
+	Sposoby oddziaływania należy podać jako drugi argument wywołania programu.
+	Numer sygnału należy podać jako trzeci argument wywołania programu (należy uważać, żeby wpisać liczbę,
+	w innym wypadku można doprowadzić do niepożądanych skutków).
+	W przypadku wyboru możliwości "moje" jako czwarty argument należy podać odpowiedni sposób reakcji.
+
+Tłumaczy on jakie argumenty wywołania należy podać
+
+Natomiast, aby uruchomić program główny (części II i III) należy w terminalu wpisać: ./glowny.out
+W czasie działania programu zostaniemy zapytani o numer procesu który chcemy przeciążyć, oraz ile procesów potomnych chcemy utworzyć. Jeśli w przypadku tego drugiego podamy 1 zostanie wykonany program z instrukcjami dla części II zadania,
+zaś jeśli podamy liczbę większą stworzymy kilka procesów i zostanie do nich wysłany sygnał przeciążony a po 5 sekundach wszystkie procesy (włącznie z macierzystym) zostaną zakończone. Każdy z potomnych procesów przeciąży ten sam sygnał na swój sposób (pierwszy wykona działanie zwyczajne, drugi go zignoruje, kolejne 4 wykonają po 1 trybie działania w przypadku wyboru argumentu "moje": patrz pomoc; jeśli podana liczba procesów potomnych będzie większa niż 6 to procesy będą wykonywać podane 6 rodzajów instrukcji cyklicznie - wykorzystuje się resztę z dzielenia przez 6).
+	
+Jeśli chce się usunąć pliki wynikowe, należy wywołać komendę:
+
+	make clean

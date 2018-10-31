@@ -1,0 +1,19 @@
+Instrukcja kompilowania programów wykorzystywanych w ćwiczeniu 10
+Autor: Paweł Kędzior
+
+Aby skompilować i uruchomić program, należy wywołać komendę:
+
+	make uruchom
+
+Po jego uruchomieniu podajemy liczbę wątków, które chcemy stworzyć.
+
+Następnie obserwujemy działanie programu i zliczamy, ile razy jakiś wątek opuścił sekcję krytyczną. Kiedy zdecydujemy się zakończyć program, wciskamy ENTER i
+porównujemy liczbę wyświetlaną z tą, którą przeliczyliśmy. Powinny być identyczne. 
+
+Jeśli chce się usunąć produkty kompilacji i wywołania programu, należy wywołać komendę:
+
+	make clean
+	
+Istnieje możliwość spakowania plików do archiwum *.tar.gz przy pomocy komendy:
+
+	make tar

@@ -1,0 +1,22 @@
+Instrukcja kompilowania programów wykorzystywanych w ćwiczeniu 5
+Autor: Paweł Kędzior
+
+Aby skompilować programy, należy wywołać komendę:
+
+	make all
+
+Następnie uruchamiamy program wywołując komendę ./glowny.out. 
+
+Po jego uruchomieniu wyświetla się menu z trzema opcjami: 0 - wyjście; 1 - problem producent-konsument obsługiwany przez fifo utworzone z poziomu konsoli; 2 - problem producent-konsument utworzony przez użytkownika. Aby dokonać wybou należy wpisać liczbę odpowiadającą naszemu wyborowi.
+
+Potem należy poczekać, aż program zakończy działanie.
+
+Program w trakcie wykonywania dzieli się na proces macierzysty i proces potomny, po czym uruchamia podprogramy pisarz.out i czytacz.out w procesach macierzystym i potomnym.
+
+Podprogram czytacz.out wymaga podania argumentu 0 lub 1 który obsługuje odpowiednio fifo stworzone przez konsolę i tworzenie fifo z poziomu programu. Program na początku tworzy fifo bądź sprawdza czy istnieje(jeśli podano argument 1), następnie łączy się z nim i czyta plik tekstowy o nazwie "zrodlo.txt" i wysyła jego zawartość (po 5 znaków) do potoku. Podprogram kończy działanie, gdy dotrze do końca pliku.
+
+Drugi z podprogramów - pisarz.out również wymaga podania argumentu 0 lub 1, które odpowiadają trybom analogicznym w programie czytacz.out. Program, podobnie jak poprzedni tworzy lub sprawdza czy fifo istnieje, łączy się z nim i czyta dane z potoku i zapisuje je w nowym pliku tekstowym "cel.txt". Bezpośrednio przed zakończeniem, jeśli wybrano tryb 1 działania programu usuwa plik fifo. Jego działanie zostaje zakończone, gdy otrzyma z potoku symbol końca pliku.
+
+Jeśli chce się usunąć pliki wynikowe, należy wywołać komendę:
+
+	make clean
